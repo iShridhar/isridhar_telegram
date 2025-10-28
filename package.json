@@ -1,0 +1,41 @@
+{
+  "name": "iisridhar-telegram-bot",
+  "version": "2.0.0",
+  "description": "Шридхар Махарадж ИИ - Духовный Telegram бот и Mini App",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js",
+    "webapp": "node src/webapp/server.js",
+    "dev:webapp": "nodemon src/webapp/server.js"
+  },
+  "keywords": [
+    "telegram",
+    "bot",
+    "ai",
+    "spiritual",
+    "grammy"
+  ],
+  "author": "iiSridhar Team",
+  "license": "MIT",
+  "dependencies": {
+    "grammy": "^1.21.1",
+    "@grammyjs/conversations": "^1.2.0",
+    "@grammyjs/menu": "^1.2.1",
+    "@grammyjs/parse-mode": "^1.10.0",
+    "@grammyjs/stateless-question": "^3.0.0",
+    "dotenv": "^16.4.5",
+    "axios": "^1.6.7",
+    "openai": "^4.28.0",
+    "sqlite3": "^5.1.7",
+    "express": "^4.18.3",
+    "marked": "^12.0.1",
+    "date-fns": "^3.3.1",
+    "node-cache": "^5.1.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0"
+  }
+}
+

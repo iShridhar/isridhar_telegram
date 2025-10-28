@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>🕉️ Шридхар Махарадж ИИ</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --tg-theme-bg-color: #1a1a1a;
+      --tg-theme-text-color: #ffffff;
+      --tg-theme-hint-color: #aaaaaa;
+      --tg-theme-link-color: #10a37f;
+      --tg-theme-button-color: #10a37f;
+      --tg-theme-button-text-color: #ffffff;
+      --tg-theme-secondary-bg-color: #2d2d2d;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background-color: var(--tg-theme-bg-color);
+      color: var(--tg-theme-text-color);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    .app-container {
+      max-width: 100%;
+      margin: 0 auto;
+      padding: 16px;
+      padding-bottom: 80px;
+    }
+
+    .header {
+      text-align: center;
+      padding: 24px 0;
+      background: linear-gradient(135deg, #ff9800 0%, #ffb74d 100%);
+      border-radius: 16px;
+      margin-bottom: 24px;
+      box-shadow: 0 4px 12px rgba(255, 152, 0, 0.3);
+    }
+
+    .header-icon {
+      width: 60px;
+      height: 60px;
+      background: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 12px;
+      font-size: 32px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .header h1 {
+      font-size: 24px;
+      font-weight: 600;
+      color: white;
+      margin-bottom: 4px;
+    }
+
+    .header p {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    .section {
+      background: var(--tg-theme-secondary-bg-color);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .section-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .conversation-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .conversation-item {
+      background: var(--tg-theme-bg-color);
+      border-radius: 8px;
+      padding: 16px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .conversation-item:active {
+      transform: scale(0.98);
+      background: rgba(16, 163, 127, 0.1);
+    }
+
+    .conversation-title {
+      font-weight: 500;
+      margin-bottom: 4px;
+      color: var(--tg-theme-text-color);
+    }
+
+    .conversation-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      color: var(--tg-theme-hint-color);
+    }
+
+    .conversation-mode {
+      padding: 4px 8px;
+      background: rgba(16, 163, 127, 0.2);
+      border-radius: 4px;
+      font-size: 11px;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .stat-card {
+      background: var(--tg-theme-bg-color);
+      border-radius: 8px;
+      padding: 16px;
+      text-align: center;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .stat-value {
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--tg-theme-link-color);
+      margin-bottom: 4px;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: var(--tg-theme-hint-color);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: var(--tg-theme-hint-color);
+    }
+
+    .spinner {
+      border: 3px solid rgba(255, 255, 255, 0.1);
+      border-top: 3px solid var(--tg-theme-link-color);
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 12px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--tg-theme-hint-color);
+    }
+
+    .empty-icon {
+      font-size: 48px;
+      margin-bottom: 12px;
+      opacity: 0.5;
+    }
+
+    .message-view {
+      display: none;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .message-item {
+      display: flex;
+      gap: 12px;
+      padding: 12px;
+      background: var(--tg-theme-bg-color);
+      border-radius: 8px;
+    }
+
+    .message-item.user {
+      flex-direction: row-reverse;
+    }
+
+    .message-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .message-item.user .message-avatar {
+      background: #666;
+    }
+
+    .message-item.assistant .message-avatar {
+      background: var(--tg-theme-link-color);
+    }
+
+    .message-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .message-text {
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+
+    .back-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 8px 16px;
+      background: var(--tg-theme-bg-color);
+      border: none;
+      border-radius: 8px;
+      color: var(--tg-theme-link-color);
+      font-size: 14px;
+      cursor: pointer;
+      margin-bottom: 16px;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <div class="header">
+      <div class="header-icon">🕉️</div>
+      <h1>Шридхар Махарадж ИИ</h1>
+      <p>Духовный наставник и помощник</p>
+    </div>
+
+    <!-- Main View -->
+    <div id="mainView">
+      <!-- Stats Section -->
+      <div class="section">
+        <div class="section-title">
+          📊 Статистика
+        </div>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-value" id="totalConversations">0</div>
+            <div class="stat-label">Диалогов</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="totalMessages">0</div>
+            <div class="stat-label">Сообщений</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Conversations Section -->
+      <div class="section">
+        <div class="section-title">
+          💬 История диалогов
+        </div>
+        <div id="conversationsList" class="conversation-list">
+          <div class="loading">
+            <div class="spinner"></div>
+            <p>Загрузка диалогов...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Messages View -->
+    <div id="messagesView" style="display: none;">
+      <button class="back-button" onclick="showMainView()">
+        ← Назад к диалогам
+      </button>
+      <div class="section">
+        <div class="section-title" id="conversationTitle">
+          💬 Диалог
+        </div>
+        <div id="messagesList" class="message-view">
+          <div class="loading">
+            <div class="spinner"></div>
+            <p>Загрузка сообщений...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Initialize Telegram Web App
+    const tg = window.Telegram.WebApp;
+    tg.expand();
+    tg.ready();
+
+    // Apply Telegram theme
+    document.documentElement.style.setProperty('--tg-theme-bg-color', tg.themeParams.bg_color || '#1a1a1a');
+    document.documentElement.style.setProperty('--tg-theme-text-color', tg.themeParams.text_color || '#ffffff');
+    document.documentElement.style.setProperty('--tg-theme-hint-color', tg.themeParams.hint_color || '#aaaaaa');
+    document.documentElement.style.setProperty('--tg-theme-link-color', tg.themeParams.link_color || '#10a37f');
+    document.documentElement.style.setProperty('--tg-theme-button-color', tg.themeParams.button_color || '#10a37f');
+    document.documentElement.style.setProperty('--tg-theme-secondary-bg-color', tg.themeParams.secondary_bg_color || '#2d2d2d');
+
+    // Get user ID from Telegram
+    const userId = tg.initDataUnsafe?.user?.id || 123456789; // Fallback for testing
+
+    // Mode emoji mapping
+    const modeEmojis = {
+      spiritual: '🕉️',
+      meditation: '🧘',
+      philosophy: '📿',
+      qa: '❓'
+    };
+
+    // Load conversations
+    async function loadConversations() {
+      try {
+        const response = await fetch(`/api/conversations/${userId}`);
+        const conversations = await response.json();
+
+        const listEl = document.getElementById('conversationsList');
+        
+        if (conversations.length === 0) {
+          listEl.innerHTML = `
+            <div class="empty-state">
+              <div class="empty-icon">💭</div>
+              <p>У вас пока нет диалогов</p>
+              <p style="font-size: 12px; margin-top: 8px;">Начните беседу в боте!</p>
+            </div>
+          `;
+          document.getElementById('totalConversations').textContent = '0';
+          return;
+        }
+
+        document.getElementById('totalConversations').textContent = conversations.length;
+
+        listEl.innerHTML = conversations.map(conv => {
+          const date = new Date(conv.created_at).toLocaleDateString('ru-RU');
+          const emoji = modeEmojis[conv.mode] || '💬';
+          return `
+            <div class="conversation-item" onclick="loadMessages(${conv.id}, '${conv.title}')">
+              <div class="conversation-title">${emoji} ${conv.title || 'Беседа'}</div>
+              <div class="conversation-meta">
+                <span>${date}</span>
+                <span class="conversation-mode">${conv.mode}</span>
+              </div>
+            </div>
+          `;
+        }).join('');
+      } catch (error) {
+        console.error('Load conversations error:', error);
+        document.getElementById('conversationsList').innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">❌</div>
+            <p>Ошибка загрузки диалогов</p>
+          </div>
+        `;
+      }
+    }
+
+    // Load messages for a conversation
+    async function loadMessages(conversationId, title) {
+      document.getElementById('mainView').style.display = 'none';
+      document.getElementById('messagesView').style.display = 'block';
+      document.getElementById('conversationTitle').textContent = `💬 ${title}`;
+
+      try {
+        const response = await fetch(`/api/messages/${conversationId}`);
+        const messages = await response.json();
+
+        const listEl = document.getElementById('messagesList');
+        
+        if (messages.length === 0) {
+          listEl.innerHTML = `
+            <div class="empty-state">
+              <p>Нет сообщений</p>
+            </div>
+          `;
+          return;
+        }
+
+        document.getElementById('totalMessages').textContent = messages.length;
+
+        listEl.innerHTML = messages.map(msg => {
+          const isUser = msg.role === 'user';
+          const avatar = isUser ? '👤' : '🕉️';
+          return `
+            <div class="message-item ${msg.role}">
+              <div class="message-avatar">${avatar}</div>
+              <div class="message-content">
+                <div class="message-text">${msg.content}</div>
+              </div>
+            </div>
+          `;
+        }).join('');
+
+        listEl.style.display = 'flex';
+      } catch (error) {
+        console.error('Load messages error:', error);
+        document.getElementById('messagesList').innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">❌</div>
+            <p>Ошибка загрузки сообщений</p>
+          </div>
+        `;
+      }
+    }
+
+    // Show main view
+    function showMainView() {
+      document.getElementById('mainView').style.display = 'block';
+      document.getElementById('messagesView').style.display = 'none';
+      document.getElementById('messagesList').style.display = 'none';
+    }
+
+    // Initialize app
+    loadConversations();
+  </script>
+</body>
+</html>
+

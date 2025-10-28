@@ -1,0 +1,11 @@
+node_modules/
+.env
+data/*.db
+data/*.db-journal
+data/sessions/
+*.log
+.DS_Store
+package-lock.json
+dist/
+build/
+

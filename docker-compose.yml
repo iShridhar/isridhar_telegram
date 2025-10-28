@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  bot:
+    build: .
+    container_name: iisridhar-bot
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - ./data:/app/data
+    networks:
+      - iisridhar-network
+    depends_on:
+      - webapp
+
+  webapp:
+    build: .
+    container_name: iisridhar-webapp
+    command: node src/webapp/server.js
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "${WEBAPP_PORT:-3000}:3000"
+    volumes:
+      - ./data:/app/data
+    networks:
+      - iisridhar-network
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/health')"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+
+networks:
+  iisridhar-network:
+    driver: bridge
+
+volumes:
+  data:
+
