@@ -318,6 +318,6 @@ process.once('SIGTERM', async () => {
 await bot.start();
 console.log('🚀 iiSridhar Telegram Bot is running!');
 console.log(`📊 Database: ${config.databasePath}`);
-console.log(`🤖 AI Service: ${config.useLocalAi ? 'Local AI' : 'OpenAI'}`);
+console.log(`🤖 AI Service: ${config.useOllama ? `Ollama (${config.ollamaModel})` : config.useLocalAi ? 'Local AI' : 'OpenAI'}`);
 console.log(`🌍 Default language: ${config.defaultLanguage}`);
 

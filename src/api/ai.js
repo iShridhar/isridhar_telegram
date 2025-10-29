@@ -5,7 +5,7 @@ import { t } from '../i18n/translations.js';
 
 class AIService {
   constructor() {
-    if (!config.useLocalAi) {
+    if (!config.useLocalAi && !config.useOllama) {
       this.openai = new OpenAI({
         apiKey: config.openaiApiKey,
       });
@@ -146,9 +146,109 @@ class AIService {
     }
   }
 
+  // Generate response using Ollama
+  async generateOllama(messages, mode, language) {
+    try {
+      const systemPrompt = this.getSystemPrompt(mode, language);
+      
+      // Format messages for Ollama
+      const formattedMessages = [
+        { role: 'system', content: systemPrompt },
+        ...messages,
+      ];
+
+      const response = await axios.post(
+        `${config.ollamaUrl}/api/chat`,
+        {
+          model: config.ollamaModel,
+          messages: formattedMessages,
+          stream: false,
+          options: {
+            temperature: 0.7,
+            top_p: 0.9,
+            top_k: 40,
+          },
+        },
+        {
+          timeout: 120000, // 120 seconds timeout for larger models
+        }
+      );
+
+      return response.data.message.content;
+    } catch (error) {
+      console.error('Ollama error:', error);
+      if (error.code === 'ECONNREFUSED') {
+        throw new Error('Ollama не запущен. Запустите: ollama serve');
+      }
+      throw error;
+    }
+  }
+
+  // Generate response using Ollama with streaming
+  async *generateOllamaStream(messages, mode, language) {
+    try {
+      const systemPrompt = this.getSystemPrompt(mode, language);
+      
+      const formattedMessages = [
+        { role: 'system', content: systemPrompt },
+        ...messages,
+      ];
+
+      const response = await axios.post(
+        `${config.ollamaUrl}/api/chat`,
+        {
+          model: config.ollamaModel,
+          messages: formattedMessages,
+          stream: true,
+          options: {
+            temperature: 0.7,
+            top_p: 0.9,
+            top_k: 40,
+          },
+        },
+        {
+          responseType: 'stream',
+          timeout: 120000,
+        }
+      );
+
+      let buffer = '';
+      
+      for await (const chunk of response.data) {
+        buffer += chunk.toString();
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || '';
+
+        for (const line of lines) {
+          if (line.trim()) {
+            try {
+              const data = JSON.parse(line);
+              if (data.message?.content) {
+                yield data.message.content;
+              }
+              if (data.done) {
+                return;
+              }
+            } catch (e) {
+              // Skip invalid JSON
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Ollama stream error:', error);
+      if (error.code === 'ECONNREFUSED') {
+        throw new Error('Ollama не запущен. Запустите: ollama serve');
+      }
+      throw error;
+    }
+  }
+
   // Main generate method
   async generate(messages, mode, language) {
-    if (config.useLocalAi) {
+    if (config.useOllama) {
+      return await this.generateOllama(messages, mode, language);
+    } else if (config.useLocalAi) {
       return await this.generateLocal(messages, mode, language);
     } else {
       return await this.generateOpenAI(messages, mode, language);
@@ -157,7 +257,9 @@ class AIService {
 
   // Generate with streaming
   async *generateStream(messages, mode, language) {
-    if (config.useLocalAi) {
+    if (config.useOllama) {
+      yield* this.generateOllamaStream(messages, mode, language);
+    } else if (config.useLocalAi) {
       // Local AI doesn't support streaming, return single response
       const response = await this.generateLocal(messages, mode, language);
       yield response;

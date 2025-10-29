@@ -12,6 +12,11 @@ export const config = {
   localAiUrl: process.env.LOCAL_AI_URL || 'http://localhost:12500/generate',
   useLocalAi: process.env.USE_LOCAL_AI === 'true',
   
+  // Ollama
+  ollamaUrl: process.env.OLLAMA_URL || 'http://localhost:11434',
+  ollamaModel: process.env.OLLAMA_MODEL || 'llama2',
+  useOllama: process.env.USE_OLLAMA === 'true',
+  
   // Database
   databasePath: process.env.DATABASE_PATH || './data/bot.db',
   
@@ -30,7 +35,7 @@ if (!config.botToken) {
   throw new Error('BOT_TOKEN is required in .env file');
 }
 
-if (!config.useLocalAi && !config.openaiApiKey) {
-  throw new Error('OPENAI_API_KEY is required when not using local AI');
+if (!config.useLocalAi && !config.useOllama && !config.openaiApiKey) {
+  throw new Error('OPENAI_API_KEY is required when not using local AI or Ollama');
 }
 
